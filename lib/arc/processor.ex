@@ -8,6 +8,10 @@ defmodule Arc.Processor do
   end
 
   defp apply_transformation(file, {:convert, conversion}) do
-    Arc.Transformations.Convert.apply(file, conversion)
+    Arc.Transformations.Convert.apply("convert", file, conversion)
+  end
+
+  defp apply_transformation(file, {cmd, conversion}) do
+    Arc.Transformations.Convert.apply(cmd, file, conversion)
   end
 end
