@@ -13,6 +13,7 @@ defmodule Arc.Definition.Versioning do
     case conversion do
       {:noaction} -> "#{name}#{Path.extname(file.file_name)}"
       {:convert, args} ->
+        args = if is_function(args), do: args.("",""), else: args
         extension = case Regex.run(~r/-format[ ]*(\w*)/, args) do
           nil -> "#{name}#{Path.extname(file.file_name)}"
           [_, ext] -> "#{name}.#{ext}"
