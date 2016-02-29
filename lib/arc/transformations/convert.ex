@@ -1,28 +1,10 @@
 defmodule Arc.Transformations.Convert do
-  def apply(cmd, file, func) when is_function(func) do
-    new_path = temp_path
-    args = func.(file.path, String.replace(new_path, " ", "\\ "))
-    import Logger
-    Logger.info args
-    Logger.info inspect(File.exists? file.path)
-
-    System.cmd(cmd,
-      ~w(#{args}),
-      stderr_to_stdout: true)
-    |> handle_exit_code
-
-    Logger.info "NEW PATH"
-    Logger.info new_path
-
-    %Arc.File{file | path: new_path}
-  end
-
   def apply(cmd, file, args) do
-    new_path = temp_path
+    new_path     = temp_path
+    esc_new_path = String.replace(new_path, " ", "\\ ")
+    args         = if is_function(args), do: args.(file.path, esc_new_path),  else: "#{file.path} #{args} #{esc_new_path}"
 
-    System.cmd(cmd,
-      ~w(#{file.path} #{args} #{String.replace(new_path, " ", "\\ ")}),
-      stderr_to_stdout: true)
+    System.cmd(to_string(cmd), ~w(args), stderr_to_stdout: true)
     |> handle_exit_code
 
     %Arc.File{file | path: new_path}
